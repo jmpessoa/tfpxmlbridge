@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<library>
+  <book id="200"><item name="InstallOverdom help"><author>Hydexon</author><coauthor>others users</coauthor><publisher id="A" name="git hub">github</publisher><publisher id="B" name="google">google code</publisher><publisher id="C" name="media fire">media fire</publisher>
+    </item>
+  </book>
+  <movie id="133"><item id="66" name="2001 A Space Odyssey"><author>Stanley Kubrick</author><coauthor>Arthur C Clarke</coauthor><publisher>Metro Goldwyn Mayer</publisher>
+    </item>
+  </movie>
+  <installoverdomproject>
+    <installationdata>
+      <applicationdata>
+        <appname>MyApp</appname>
+      </applicationdata>
+    </installationdata>
+  </installoverdomproject>
+</library>

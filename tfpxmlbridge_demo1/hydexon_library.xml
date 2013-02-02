@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<library>
+  <book id="100">
+    <item name="lazarus guide">
+      <author>Mattias Gardner</author>
+      <coauthor>FelipeMDC and others developers</coauthor>
+      <publisher>Blaise Pascal Magazine</publisher>
+    </item>
+    <item name="tfpxmlbridge help">
+      <author>jmpessoa</author>
+      <coauthor>all users</coauthor>
+      <publisher>araguaia software</publisher>
+    </item>
+    <item name="InstallOverdom wiki">
+      <author>Hydexon</author>
+      <coauthor>someone there</coauthor>
+      <publisher>gitorious</publisher>
+    </item>
+  </book>
+  <book id="200">
+    <item name="complete lazarus 1 guide">
+      <author>b2M Gardner</author>
+      <coauthor>all others</coauthor>
+      <publisher>B P Magazine</publisher>
+    </item>
+    <item name="tfpxmlbridge tutorial">
+      <author>jmpessoa_hotmaildotcom</author>
+      <coauthor>very users</coauthor>
+      <publisher>magazine araguaia</publisher>
+    </item>
+    <item name="InstallOverdom help">
+      <author>Hydexon</author>
+      <coauthor>others users</coauthor>
+      <publisher id="A" name="git hub">github</publisher>
+      <publisher id="B" name="google">google  code</publisher>
+      <publisher id="C" name="media fire">media fire</publisher>
+    </item>
+  </book>
+</library>
