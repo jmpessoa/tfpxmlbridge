@@ -21,7 +21,7 @@
     <item name="complete lazarus 1 guide">
       <author>b2M Gardner</author>
       <coauthor>all others</coauthor>
-      <publisher>B P Magazine</publisher>
+      <publisher>Publisher Very New</publisher>
     </item>
     <item name="tfpxmlbridge tutorial">
       <author>jmpessoa_hotmaildotcom</author>
@@ -32,8 +32,9 @@
       <author>Hydexon</author>
       <coauthor>others users</coauthor>
       <publisher id="A" name="git hub">github</publisher>
-      <publisher id="B" name="google">google  code</publisher>
+      <publisher id="B" name="google code">google</publisher>
       <publisher id="C" name="media fire">media fire</publisher>
+      <publisher id="D" name="opendrive">open drive</publisher>
     </item>
   </book>
 </library>
