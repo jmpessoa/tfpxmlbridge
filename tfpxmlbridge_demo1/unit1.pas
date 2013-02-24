@@ -333,7 +333,10 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   //just for test in the same directory of the application...
   if not FileExists('hydexon_library.xml') then
-     FPXMLBridge1.CreateXMLDocument('hydexon_library.xml', 'library')
+  begin
+     FPXMLBridge1.CreateXMLDocument('hydexon_library.xml', 'library');
+     FPXMLBridge1.SaveToFile('hydexon_library.xml')
+  end
   else FPXMLBridge1.LoadFromFile('hydexon_library.xml');
 
   SynMemo1.Lines.LoadFromFile(FPXMLBridge1.XMLDocumentPath);

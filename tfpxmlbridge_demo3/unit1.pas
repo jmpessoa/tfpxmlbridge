@@ -17,7 +17,6 @@ type
     FPXMLBridge1: TFPXMLBridge;
     ImageList1: TImageList;
     MenuItem1: TMenuItem;
-    MenuItem10: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
@@ -55,76 +54,58 @@ implementation
 
 { TForm1 }
 
+
 procedure TForm1.PopupMenu1Close(Sender: TObject);
 var
    sText: string;
    query, fileName: string;
-   i, count: integer;
 begin
     sText:= (Sender as TMenuItem).Caption;
     if CompareText(sText, 'New') = 0 then
     begin
-        fileName:= 'hydexon_library_2.xml';
+        fileName:= 'projEstructural2.xml';
         InputQuery('New','New File', fileName);
-        FPXMLBridge1.CreateXMLDocument(fileName, 'library' {root node});
+        FPXMLBridge1.CreateXMLDocument(fileName, 'project' {root node});
         FPXMLBridge1.SaveToFile(fileName);    //just for call Form1 event handler...
     end
     else if CompareText(sText, 'Insert Node') = 0 then
     begin
-        //create on library the node stationery... pay attention where is the token $
-        query:= 'library$stationery';
+
+        query:= 'project.beams.beam(1).spans.span[0]$loadp(offset#2,7;p#200)';
         FPXMLBridge1.InsertNode(query);
-        //insert node item... pay attention where is the token $
-        query:= 'library.stationery$item()pencil';   //value = pencil
+
+        query:= 'project.beams.beam(1).spans.span[1]$loadp(offset#3,2;p#400)';
         FPXMLBridge1.InsertNode(query);
-        query:= 'library.stationery$item()pen';   //value = pen
-        FPXMLBridge1.InsertNode(query);
-        query:= 'library.stationery$item()eraser';   //value = eraser
-        FPXMLBridge1.InsertNode(query);
-        query:= 'library.stationery$item()notebook';   //value = notebook
-        FPXMLBridge1.InsertNode(query);
+
         FPXMLBridge1.SaveToFile(FPXMLBridge1.XMLDocumentPath);   //just for call Form1 event handler...
     end
-    else if CompareText(sText, 'Get Value') = 0 then
+    else if CompareText(sText, 'Get Attribute Value') = 0 then
     begin
-        //this code read each item value...by index!
-        query:='library.stationery';
-        count:= FPXMLBridge1.CountElementNodeChildren(FPXMLBridge1.GetNode(query));
-        for i:=0 to count-1 do
-        begin;
-          query:= 'library.stationery.item['+intToStr(i)+']';
-          ShowMessage(FPXMLBridge1.GetValue(query));
-        end;
-    end
-    else if CompareText(sText, 'Set Value') = 0 then
-    begin
-        //this code (re)write each item value...by index!
-        query:='library.stationery';
-        count:= FPXMLBridge1.CountElementNodeChildren(FPXMLBridge1.GetNode(query));
-        for i:=0 to count-1 do
-        begin;
-          query:= 'library.stationery.item['+intToStr(i)+']'+'$'+intToStr(i*100);
-          InputQuery('Set Value','Path:',query);
-          FPXMLBridge1.SetValue(query);
-          FPXMLBridge1.SaveToFile(FPXMLBridge1.XMLDocumentPath);
-        end;
-        FPXMLBridge1.SetValue(query);
-        FPXMLBridge1.SaveToFile(FPXMLBridge1.XMLDocumentPath);    //call Form1 event handler...
-    end
-    else if CompareText(sText, 'Remove Node') = 0 then
-    begin
-        //this code remove item...by index!
-        i:=1;
-        query:='library.stationery';
-        count:= FPXMLBridge1.CountElementNodeChildren(FPXMLBridge1.GetNode(query));
-        if i < count then
+        query:= 'project.beams.beam(1).spans.span[0]';
+        if FPXMLBridge1.GetNode(query).HasAttributes then
         begin
-          query:= 'library.stationery.item['+intToStr(i)+']';
-          FPXMLBridge1.RemoveNode(query);
-          ShowMessage('node '+ intToStr(i) + 'removed!');
-        end
-        else
-          ShowMessage('FAIL: i='+intToStr(i) +' > count='+ intToStr(count));
+            ShowMessage(FPXMLBridge1.GetAttrList(query));
+            ShowMessage(FPXMLBridge1.GetAttrValueByName(query, 'len'));
+        end;
+
+        query:= 'project.beams.beam(1).spans.span[1].loadp[0]';
+        if FPXMLBridge1.GetNode(query).HasAttributes then
+        begin
+            ShowMessage(FPXMLBridge1.GetAttrList(query));
+            ShowMessage(FPXMLBridge1.GetAttrValueByName(query, 'p'));
+        end;
+    end
+    else if CompareText(sText, 'Set Attribute') = 0 then
+    begin
+        //this code (re)write attribute...
+
+        query:= 'project.beams.beam(1).spans.span[0]$(id#1)';
+        FPXMLBridge1.SetAttribute(query);
+
+        query:= 'project.beams.beam(1).spans.span[0].loadp[0]$(p#444)';
+        FPXMLBridge1.SetAttribute(query);
+
+        FPXMLBridge1.SaveToFile(FPXMLBridge1.XMLDocumentPath);    //call Form1 event handler...
     end
     else if  CompareText(sText, 'Save') = 0 then
     begin
@@ -150,9 +131,9 @@ var
   listStr: TStringList;
 begin
     listStr:= TStringList.Create;
-    listStr.Add('App Demo 2');
+    listStr.Add('App Demo 3');
     listStr.Add('TFPXMLBridge - Version 0.1 - 01/2013');
-    listStr.Add('Revision 01 - 09/Fev/2013');
+    listStr.Add('Revision 02 - 23/Fev/2013');
     listStr.Add('Author: Jose Marques Pessoa : jmpessoa__hotmail_com');
     listStr.Add('[1]Warning: at the moment this code is just a proof-of-concept');
     listStr.Add('Please, reade the README.TXT!');
@@ -162,15 +143,40 @@ begin
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
+var
+  query: string;
 begin
 
   //just for test in the same directory of the application...
-  if not FileExists('hydexon_library_2.xml') then
+  if not FileExists('projStructural.xml') then
   begin
-     FPXMLBridge1.CreateXMLDocument('hydexon_library_2.xml', 'library');
-     FPXMLBridge1.SaveToFile('hydexon_library_2.xml')
+     FPXMLBridge1.CreateXMLDocument('projStructural.xml', 'project');
+
+     query:= 'project$beams';
+     FPXMLBridge1.InsertNode(query);
+
+     query:= 'project.beams$beam(id#1)';
+     FPXMLBridge1.InsertNode(query);
+
+     query:= 'project.beams.beam(1)$spans';
+     FPXMLBridge1.InsertNode(query);
+
+     query:= 'project.beams.beam(1).spans$span(len#5,5;q#1000)';
+     FPXMLBridge1.InsertNode(query);
+
+     query:= 'project.beams.beam(1).spans$span(len#4,5;q#1200)';
+     FPXMLBridge1.InsertNode(query);
+
+     query:= 'project.beams.beam(1).spans.span[0]$loadp(offset#3,7;p#500)';
+     FPXMLBridge1.InsertNode(query);
+
+     query:= 'project.beams.beam(1).spans.span[1]$loadp(offset#1,2;p#600)';
+     FPXMLBridge1.InsertNode(query);
+
+
+     FPXMLBridge1.SaveToFile('projStructural.xml')
   end
-  else FPXMLBridge1.LoadFromFile('hydexon_library_2.xml');
+  else FPXMLBridge1.LoadFromFile('projStructural.xml');
 
   SynMemo1.Lines.LoadFromFile(FPXMLBridge1.XMLDocumentPath);
 
