@@ -102,7 +102,7 @@ begin
         query:= 'project.beams.beam(1).spans.span[0]$(id#1)';
         FPXMLBridge1.SetAttribute(query);
 
-        query:= 'project.beams.beam(1).spans.span[0].loadp[0]$(p#444)';
+        query:= 'project.beams.beam(1).spans.span[1].loadp[0]$(p#444)';
         FPXMLBridge1.SetAttribute(query);
 
         FPXMLBridge1.SaveToFile(FPXMLBridge1.XMLDocumentPath);    //call Form1 event handler...
@@ -152,13 +152,13 @@ begin
   begin
      FPXMLBridge1.CreateXMLDocument('projStructural.xml', 'project');
 
-     query:= 'project$beams';
+     query:= 'project$beams()';
      FPXMLBridge1.InsertNode(query);
 
      query:= 'project.beams$beam(id#1)';
      FPXMLBridge1.InsertNode(query);
 
-     query:= 'project.beams.beam(1)$spans';
+     query:= 'project.beams.beam(1)$spans()';
      FPXMLBridge1.InsertNode(query);
 
      query:= 'project.beams.beam(1).spans$span(len#5,5;q#1000)';

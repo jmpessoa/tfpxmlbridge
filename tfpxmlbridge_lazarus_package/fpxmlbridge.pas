@@ -8,27 +8,39 @@ TFPXMLBridge - Version 0.1 - 01/2013;
 Author: Jose Marques Pessoa : jmpessoa__hotmail_com
 [1]Warning: at the moment this code is just a *proof-of-concept*
 
+::revision 02 - minor fix for GetDOMNodeReference - 24/February/2013
+
+::revision 02 - 23/February/2013
+
+	NEW Add suport for read/write Attributes
+	NEW function GetAttrList(query: string): string;
+	NEW function GetAttrValueByName(query: string; attrName: string)
+	NEW procedure SetAttribute(query: string)
+	NEW Add    AppDemo3
+
+
 ::revision 01 - 09/February/2013
 
-NEW Sintaxe GetValue/SetValue by Node Index.
-NEW procedure SetCurrentNode(query: string).
-NEW change AppDemo1    (remove option "new documment")
-NEW Add    AppDemo2    (here is the option "new documment")
-NEW Tips..
+	NEW Sintaxe GetValue/SetValue by Node Index.
+	NEW procedure SetCurrentNode(query: string).
+
+	NEW change AppDemo1    (remove option "new documment")
+	NEW Add    AppDemo2    (here is the option "new documment")
+	NEW Tips..
 
 [2]Tokens "Language" :
-Warning: change this tokens if necessary... or Application will crash!
+	Warning: change this tokens if necessary... or Application will crash!
 
-NamespaceSeparatorToken:  .
-BridgeLateBindingToken:  *    //default attribute=0 in late binding
-NameValueSeparatorToken:  #  //... equal
-AssignmentToken:  $          //... Assignment
-ConcatenationToken:  |
-AttributeNameValueStartToken:  (
-AttributeNameValueEndToken:  )
-AttributesSeparatorToken:   ;
-IndexStartToken:  [
-IndexEndToken:    ]
+	NamespaceSeparatorToken:  .
+	BridgeLateBindingToken:  *    //default attribute=0 in late binding
+	NameValueSeparatorToken:  #   //... equal
+	AssignmentToken:  $           //... Assignment
+	ConcatenationToken:  |
+	AttributeNameValueStartToken:  (
+	AttributeNameValueEndToken:  )
+	AttributesSeparatorToken:   ;
+	IndexStartToken:  [
+	IndexEndToken:    ]
 
 [3] Sintaxe Example:
 
@@ -40,12 +52,12 @@ IndexEndToken:    ]
     <library>
     </library>
 
-    now, after then commands:
+    Now, after the commands:
 
     InsertNode('library$book(id#100)')  //create node <book id="100">
     InsertNode('library$book(id#200)')  //create node <book id="200">
 
-    now, the documment result is:
+    the documment is:
 
     <?xml version="1.0" encoding="utf-8"?>
     <library>
@@ -56,81 +68,113 @@ IndexEndToken:    ]
     </library>
 
 3.1.1    Insert item in library.book(100)           //library is root node
-library.book(100)$item(id#1;name#lazarus guide)  //sintaxe
-library.book(100)                 :namespace where some book attribute=1
-$item                           :insert new node item
-(id#1;name#lazarus guide)       :with attributes: name1#value1;name2#value2
+
+	library.book(100)$item(id#1;name#lazarus guide)  //sintaxe
+	library.book(100)                 :namespace where some book attribute=100
+	$item                           :insert new node item
+	(id#1;name#lazarus guide)       :with attributes: name1#value1;name2#value2
 
 3.1  Insert item in library.book
-library.book$item()out of print    //sintaxe
-library.book          :namespace base - first book child
-$item                 :insert new node item
-()                    :empty open/closed parenthesis: no attribute at all!
-out of print          :inner/content text!
+
+	library.book$item()out of print    //sintaxe
+	library.book          :namespace base - first book child
+	$item                 :insert new node item
+	()                    :empty open/closed parenthesis: no attribute at all!
+	out of print          :inner/content text!
 
 3.2  Set value in item(lazarus guide)
-library.book(100).item(lazarus guide)$in stock    //sintaxe
-library.book(100)          :namespace base
-$in stock            :set item text inner/content/value =in stock
 
-:TIP 1 {InsertNode}: The path to the left of the token "$" must already exist!
-:TIP 2 {InsertNode}: If the right path of the token "$" not exists will be fully created!
+	library.book(100).item(lazarus guide)$in stock    //sintaxe
+	library.book(100)          :namespace base
+	$in stock            :set item text inner/content/value =in stock
+
+:TIP 1 InsertNode: The path to the left of the token "$" must already exist!
+:TIP 2 InsertNode: If the right path of the token "$" not exists will be fully created!
 
 3.3  Set value in author
-library.book(100).item(lazarus guide)author$Mattias Gartner        //sintaxe
-library.book(100).item(lazarus guide)      :namespace base
-(                         :open token - attribute
-lazarus guide             :item selected by attribute lazarus guide
-)                         :close token - attribute
-author$Mattias Gartner    :set author text content/inner/value = Mattias Gartner
 
-:TIP 3 {SetValue}: Note that the symbol "$" is always placed at the end of the path
-                   where you need/want to Set the value!
+	library.book(100).item(lazarus guide)author$Mattias Gartner        //sintaxe
+	library.book(100).item(lazarus guide)      :namespace base
+	(                         :open token - attribute
+	lazarus guide             :item selected by attribute lazarus guide
+	)                         :close token - attribute
+	author$Mattias Gartner    :set author text content/inner/value = Mattias Gartner
+
+:TIP 3 SetValue: Note that the symbol/token "$" is always placed at the end of the path
+                 where you need/want to Set the value!
 
 3.4  Generic Insert example: Insert nodes movie and item... then insert coauthor, publisher...
-library$movie(id#121).item(id#11;name#2001 A Space Odyssey).author()Stanley Kubrick //sintaxe
-library.movie(121).item(11)$coauthor()Arthur C Clarke   //sintaxe
-library.movie(121).item(2001 A Space Odyssey)$publisher()Metro Goldwyn Mayer //sintaxe
+
+	library$movie(id#121).item(id#11;name#2001 A Space Odyssey).author()Stanley Kubrick //sintaxe
+	library.movie(121).item(11)$coauthor()Arthur C Clarke   //sintaxe
+	library.movie(121).item(2001 A Space Odyssey)$publisher()Metro Goldwyn Mayer //sintaxe
 
 3.5  Generic Get example: Get value by some attribute
-library.book(200).item(InstallOverdom help).publisher(B)
-library.book(200)            :select book where some attribute=2
-item(InstallOverdom help)  :select item where some attribute=InstallOverdom help
-publisher(B)               :select publisher where some attribute=B
+
+	library.book(200).item(InstallOverdom help).publisher(B)
+	library.book(200)            :select book where some attribute=2
+	item(InstallOverdom help)  :select item where some attribute=InstallOverdom help
+	publisher(B)               :select publisher where some attribute=B
 
 3.6 Generic GetValue by nodeIndex:
 
         //library is root node
-        InsertNode('library$test') //create node <test>
-        InsertNode('library.test$item()value1') //create node <item>value1</item>
-        InsertNode('library.test$item()value2') //create node <item>value2</item>
-        InsertNode('library.test$item()value3') //create node <item>value3</item>
-        InsertNode('library.test$item()value4') //create node <item>value4</item>
 
-        //this code read each item value...
-        query:='library.test';
+        InsertNode('library$stationery') //create node <stationery>
+
+        InsertNode('library.stationery$item()pencil') //create node <item>pencil</item>
+        InsertNode('library.stationery$item()pen') //create node <item>pen</item>
+        InsertNode('library.stationery$item()eraser') //create node <item>eraser</item>
+        InsertNode('library.stationery$item()notebook') //create node <item>notebook</item>
+
+        //this code read each item value...by index!
+
+        query:='library.stationery';
         count:= FPXMLBridge1.CountElementNodeChildren(FPXMLBridge1.GetNode(query));
         for i:=0 to count-1 do
         begin;
-          query:= 'library.test.item['+intToStr(i)+']';
+          query:= 'library.stationery.item['+intToStr(i)+']';
           ShowMessage(FPXMLBridge1.GetValue(query));
         end;
 
 3.7 Generic SetValue by node index:
 
-        //this code (re)write each item value...
-        query:='library.test';
+        //this code (re)write each item value...by index!
+
+        query:='library.stationery';
         count:= FPXMLBridge1.CountElementNodeChildren(FPXMLBridge1.GetNode(query));
         for i:=0 to count-1 do
         begin;
-          query:= 'library.test.item['+intToStr(i)+']'+'$'+intToStr(i*100);
+          query:= 'library.stationery.item['+intToStr(i)+']'+'$'+intToStr(i*100);
           FPXMLBridge1.SetValue(query);
           FPXMLBridge1.SaveToFile(FPXMLBridge1.XMLDocumentPath);
         end;
 
 3.8 Select path to go "on the fly": Get value by attribute index late binding - handled by OnBuildingBridge
-library.book(*).item(*).publisher(*)        :select attribute index = [0] to all {default}
-library.book([0]).item([0]).publisher([1])  :select attribute index = [1] only to publisher...
+
+	library.book(*).item(*).publisher(*)        :select attribute index = [0] to all {default}
+	library.book([0]).item([0]).publisher([1])  :select attribute index = [1] only to publisher...
+
+
+3.9 Get all Attributes node... and attribute value by attribute name...
+
+	query:= 'project.beams.beam(1).spans.span[1].loadp[0]';
+	if FPXMLBridge1.GetNode(query).HasAttributes then
+	begin
+	   ShowMessage(FPXMLBridge1.GetAttrList(query));
+	   ShowMessage(FPXMLBridge1.GetAttrValueByName(query, 'p'));
+	end;
+
+4.0 Set Attribute value....change attribute value or create new attribute
+
+	//this code (re)write attribute...
+
+        query:= 'project.beams.beam(1).spans.span[0]$(id#1)';
+        FPXMLBridge1.SetAttribute(query);
+
+        query:= 'project.beams.beam(1).spans.span[1].loadp[0]$(p#444)';
+        FPXMLBridge1.SetAttribute(query);
+
 
 [4]Have fun!
 }
@@ -214,6 +258,9 @@ type
       function GetValue(query: string): string;
       function GetNode(query: string): TDOMNode;
       procedure SetCurrentNode(query: string);  //revision 01 {09-febr-2013}
+      function GetAttrList(query: string): string; //revision 02 {23-febr-2013}
+      function GetAttrValueByName(query: string; attrName: string): string; //revision 02 {23-febr-2013}
+      procedure SetAttribute(query: string);  //revision 02 {23-febr-2013}
 
       procedure SetValue(query: string);
       function InsertNode(query: string): TDOMNode;
@@ -362,7 +409,7 @@ function TFPXMLBridge.GetDOMNodeReference(rootNode:TDOMNode; query: string):TDOM
 var
    tokens: TStringList;
    itemNode, refNode: TDOMNode;
-   i, j, k, mk, attrIndex, nodeIndex: integer;
+   i, j, k, mk, notmk,  attrIndex, nodeIndex: integer;
    nodeName, indexStr, attrValue, forwardNodeName, attrList, newAttr: string;
 begin
    tokens:= TStringList.Create;
@@ -431,6 +478,7 @@ begin
               nodeName:= SplitStr(indexStr, IndexStartToken);
               nodeIndex:= strToInt(TrimChar(indexStr, IndexEndToken));
               mk:= 0;
+              notmk:=0;   //fix: count "not ELEMENT_NODE" (fix revision 02 23-feb-2023)
               for k:= 0 to refNode.GetChildNodes.Count - 1 do
               begin
                  if refNode.GetChildNodes.Item[k].NodeType = ELEMENT_NODE then
@@ -440,13 +488,17 @@ begin
                     begin
                        mk:= mk-1;
                        break;
-                    end;
-                 end;
+                    end
+                 end  else notmk:= notmk+1;  //fix
               end;
-              if refNode.GetChildNodes.Item[mk+nodeIndex].NodeType = ELEMENT_NODE then
+              if refNode.GetChildNodes.Item[mk+notmk+nodeIndex].NodeType = ELEMENT_NODE then //fix
               begin
-                itemNode:=GetChildByIndex(refNode, mk+nodeIndex);
-                if itemNode <> nil then refNode:= itemNode;
+                 itemNode:= GetChildByIndex(refNode, mk+notmk+nodeIndex);  //fix
+                 if itemNode <> nil then refNode:= itemNode;
+              end
+              else
+              begin
+                  //fail....
               end;
            end
            else
@@ -500,8 +552,11 @@ end;
 
 //revision 01    - 09-febr-2013
 procedure TFPXMLBridge.SetCurrentNode(query: string);
+var
+  refNode: TDOMNode;
 begin
-   FCurrentNode:= GetNode(query);
+   refNode:= GetNode(query);
+   if refNode <> nil then FCurrentNode:= refNode;
 end;
 
 function TFPXMLBridge.GetCurrentNode: TDOMNode;
@@ -513,6 +568,86 @@ function TFPXMLBridge.GetValue(query: string): string;
 begin
    SetLocation(query);
    Result:= GetValueFromNodeRerence(FRootNode, FLocation);
+end;
+
+function TFPXMLBridge.GetAttrList(query: string): string;
+var
+    refNode: TDOMNode;
+    i, count: integer;
+    auxStr: string;
+begin
+    auxStr:='';
+    refNode:= GetNode(query);
+    if refNode <> nil then
+    begin
+      if refNode.HasAttributes then
+      begin
+         count:=refNode.Attributes.Length;
+         for i:= 0 to count-1 do
+         begin
+             auxStr:= auxStr +refNode.Attributes.Item[i].NodeName + NameValueSeparatorToken +
+                              refNode.Attributes.Item[i].TextContent + AttributesSeparatorToken;
+         end;
+         Result:= TrimChar(auxStr, AttributesSeparatorToken);
+      end;
+    end;
+end;
+
+function TFPXMLBridge.GetAttrValueByName(query: string; attrName: string): string;
+var
+    refNode: TDOMNode;
+    i, count: integer;
+begin
+    refNode:= GetNode(query);
+    if refNode <> nil then
+    begin
+      if refNode.HasAttributes then
+      begin
+         count:=refNode.Attributes.Length;
+         for i:= 0 to count-1 do
+         begin
+             if CompareText(refNode.Attributes.Item[i].NodeName, attrName) = 0  then
+                Result:= refNode.Attributes.Item[i].TextContent;
+         end;
+      end;
+    end;
+end;
+
+procedure TFPXMLBridge.SetAttribute(query: string);
+var
+    refNode: TDOMNode;
+    i, count: integer;
+    auxAttr, strName, strValue, auxQuery: string;
+    found: boolean;
+begin
+    found:= False;
+    auxAttr:= query;
+    auxQuery:= SplitStr(auxAttr, AssignmentToken);
+    auxAttr:=TrimChar(auxAttr, AttributeNameValueStartToken);
+    auxAttr:=TrimChar(auxAttr, AttributeNameValueEndToken);
+    strName:= SplitStr(auxAttr, NameValueSeparatorToken);
+    strValue:= auxAttr;
+
+    refNode:= GetNode(auxQuery);
+    if refNode <> nil then
+    begin
+       if refNode.HasAttributes then
+       begin
+           count:=refNode.Attributes.Length;
+           for i:= 0 to count-1 do
+           begin
+               if CompareText(refNode.Attributes.Item[i].NodeName, strName) = 0  then
+               begin
+                  refNode.Attributes.Item[i].TextContent:= strValue;
+                  found:= True;
+               end;
+           end;
+       end;
+       if not found then // add attr..
+       begin
+           TDOMElement(refNode).SetAttribute(strName,strValue);
+       end;
+    end;
 end;
 
 function TFPXMLBridge.GetNode(query: string): TDOMNode;
@@ -619,8 +754,8 @@ begin
                 begin
                    attValue:= attrList.Strings[i];
                    attName:=SplitStr(attValue,NameValueSeparatorToken);
-                   if attName <> '' then TDOMElement(newNode).SetAttribute(attName, ReplaceChar(attValue, '+',' '));
-
+                   if attName <> '' then
+                      TDOMElement(newNode).SetAttribute(attName, ReplaceChar(attValue, '+',' '));
                 end;
                 attrList.Free;
              end
@@ -867,8 +1002,6 @@ begin
   NamespaceSeparatorToken:= '.';
   NameValueSeparatorToken:= '#';
   AssignmentToken:= '$';
-//  ChildIndexStartToken:= '[';
- // ChildIndexEndToken:= ']';
   ConcatenationToken:= '|';
   AttributeNameValueStartToken:= '(';
   AttributeNameValueEndToken:= ')';

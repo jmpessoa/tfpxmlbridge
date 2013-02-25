@@ -4,10 +4,12 @@ TFPXMLBridge - Version 0.1 - 01/2013;
 Author: Jose Marques Pessoa : jmpessoa__hotmail_com
 [1]Warning: at the moment this code is just a *proof-of-concept*
 
+::revision 02 - minor fix for GetDOMNodeReference - 24/February/2013 
+
 ::revision 02 - 23/February/2013
 
 	NEW Add suport for read/write Attributes
-	NEW function GetAttrs(query: string): string;	
+	NEW function GetAttrList(query: string): string;	
 	NEW function GetAttrValueByName(query: string; attrName: string)
 	NEW procedure SetAttribute(query: string)
 	NEW Add    AppDemo3
@@ -27,8 +29,8 @@ Author: Jose Marques Pessoa : jmpessoa__hotmail_com
 
 	NamespaceSeparatorToken:  .
 	BridgeLateBindingToken:  *    //default attribute=0 in late binding
-	NameValueSeparatorToken:  #  //... equal
-	AssignmentToken:  $          //... Assignment
+	NameValueSeparatorToken:  #   //... equal
+	AssignmentToken:  $           //... Assignment
 	ConcatenationToken:  |
 	AttributeNameValueStartToken:  (
 	AttributeNameValueEndToken:  )
@@ -163,11 +165,12 @@ Author: Jose Marques Pessoa : jmpessoa__hotmail_com
 
 	//this code (re)write attribute...
 
-	query:= 'project.beams.beam(1).spans.span[0]$(id#1)';
-	FPXMLBridge1.SetAttribute(query);
+        query:= 'project.beams.beam(1).spans.span[0]$(id#1)';  
+        FPXMLBridge1.SetAttribute(query);
 
-	query:= 'project.beams.beam(1).spans.span[0].loadp[0]$(p#444)';
-	FPXMLBridge1.SetAttribute(query);
+        query:= 'project.beams.beam(1).spans.span[1].loadp[0]$(p#444)';
+        FPXMLBridge1.SetAttribute(query);
+
 
 [4]Have fun!
 
