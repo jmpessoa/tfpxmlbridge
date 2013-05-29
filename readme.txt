@@ -4,6 +4,11 @@ TFPXMLBridge - Version 0.1 - 01/2013;
 Author: Jose Marques Pessoa : jmpessoa__hotmail_com
 [1]Warning: at the moment this code is just a *proof-of-concept*
 
+
+::revision 04 add LoadFromString... 06-april-2013
+::revision 03 add property public XMLDocument.... 02-march-2013
+
+
 ::revision 02 - minor fix for GetDOMNodeReference - 24/February/2013 
 
 ::revision 02 - 23/February/2013

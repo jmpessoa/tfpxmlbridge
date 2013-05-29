@@ -8,7 +8,9 @@ TFPXMLBridge - Version 0.1 - 01/2013;
 Author: Jose Marques Pessoa : jmpessoa__hotmail_com
 [1]Warning: at the moment this code is just a *proof-of-concept*
 
-::revision 02 - minor fix for GetDOMNodeReference - 24/February/2013
+::revision 04 add LoadFromString... 06-april-2013
+::revision 03 add property public XMLDocument.... 02-march-2013
+::revision 02 - minor fix for GetDOMNodeReference... 24/february/2013
 
 ::revision 02 - 23/February/2013
 
@@ -187,7 +189,7 @@ uses
 type
 
   TBuildingBridge = procedure(currentNodeName, attrList: string; out attrBridge: string) of Object;
-  TUpdateXMLDocument = procedure(nodeName, value: string) of object;
+  TXMLDocumentEdited = procedure(AName, AValue: string) of object;  //revision 03 name changed.... 02-03-2013
   TSaveXMLDocument = procedure(pathFileName: string) of object;
 
   TReadManyTextContent = procedure(nodeName, value: string) of object;
@@ -204,7 +206,7 @@ type
 
       FOnBuildingBridge: TBuildingBridge;
 
-      FOnUpdateXMLDocument: TUpdateXMLDocument;
+      FOnXMLDocumentEdited: TXMLDocumentEdited;
       FOnSaveXMLDocument: TSaveXMLDocument;
 
       FOnReadManyTextContent: TReadManyTextContent;
@@ -228,7 +230,7 @@ type
 
       procedure DoBuildingBridge(currentNodeName, attrList: string;  out attrBridge: string);
 
-      procedure DoUpdateXMLDocument(nodeName, value: string);
+      procedure DoXMLDocumentEdited(AName, AValue: string);
       procedure DoSaveXMLDocument(pathFileName: string);
 
       procedure DoReadManyTextContent(nodeName, value: string); //many inner text content from multiples nodes..
@@ -253,6 +255,7 @@ type
 
       constructor CreateXMLDocument(pathXMLFileName: string; rootName: string);
       procedure LoadFromFile(pathXMLFileName: string);
+      procedure LoadFromString(xmlStr: string);       //revision 04 {06-april-2013} add LoadFromString
       procedure SaveToFile(pathXMLFileName: string);
 
       function GetValue(query: string): string;
@@ -260,6 +263,7 @@ type
       procedure SetCurrentNode(query: string);  //revision 01 {09-febr-2013}
       function GetAttrList(query: string): string; //revision 02 {23-febr-2013}
       function GetAttrValueByName(query: string; attrName: string): string; //revision 02 {23-febr-2013}
+
       procedure SetAttribute(query: string);  //revision 02 {23-febr-2013}
 
       procedure SetValue(query: string);
@@ -282,7 +286,8 @@ type
 
       property RootNode: TDOMNode Read GetRootNode;
       property CurrentNode: TDOMNode Read GetCurrentNode;
-
+      property Location: string read FLocation;
+      property XMLDocument: TXMLDocument read FXMLDocument; //revision 03 add property public XMLDocument.... 02-03-2013
   published
     property NamespaceSeparatorToken: char read FNamespaceSeparatorToken write FNamespaceSeparatorToken;
     property NameValueSeparatorToken: char read FNameValueSeparatorToken write FNameValueSeparatorToken;
@@ -297,9 +302,9 @@ type
     property BridgeLateBindingToken: char read FBridgeLateBindingToken write FBridgeLateBindingToken;
     property WhenManyTextContentShowNodeName: boolean read FWhenManyTextContentShowNodeName write FWhenManyTextContentShowNodeName;
 
-    property XMLDocumentPath: string read GetXMLDocumentPath write SetXMLDocumentPath;
+    property XMLDocumentPath: string read GetXMLDocumentPath write SetXMLDocumentPath;   
     property OnBuildingBridge: TBuildingBridge Read FOnBuildingBridge write FOnBuildingBridge;
-    property OnUpdateXMLDocument: TUpdateXMLDocument Read FOnUpdateXMLDocument write FOnUpdateXMLDocument;
+    property OnXMLDocumentEdited: TXMLDocumentEdited Read FOnXMLDocumentEdited write FOnXMLDocumentEdited; //revision 03 name changed.... 02-03-2013
     property OnSaveXMLDocument: TSaveXMLDocument read FOnSaveXMLDocument write FOnSaveXMLDocument;
     property OnReadManyTextContent: TReadManyTextContent Read FOnReadManyTextContent write FOnReadManyTextContent;
   end;
@@ -326,9 +331,9 @@ begin
    if Assigned(FOnBuildingBridge) then FOnBuildingBridge(currentNodeName,attrList,attrBridge);
 end;
 
-procedure TFPXMLBridge.DoUpdateXMLDocument(nodeName, value: string);
+procedure TFPXMLBridge.DoXMLDocumentEdited(AName, AValue: string);
 begin
-   if Assigned(FOnUpdateXMLDocument) then FOnUpdateXMLDocument(nodeName, value);
+   if Assigned(FOnXMLDocumentEdited) then FOnXMLDocumentEdited(AName, AValue);
 end;
 
 procedure TFPXMLBridge.DoSaveXMLDocument(pathFileName: string);
@@ -647,6 +652,7 @@ begin
        begin
            TDOMElement(refNode).SetAttribute(strName,strValue);
        end;
+       DoXMLDocumentEdited(strName, strValue);
     end;
 end;
 
@@ -682,7 +688,7 @@ begin
    parentNode.RemoveChild(refNode);
    //SaveToFile(FXMLDocumentPath);
    FCurrentNode:= parentNode;
-   DoUpdateXMLDocument(nodeName, nodeValue);
+   DoXMLDocumentEdited(nodeName, nodeValue);
 end;
 
 procedure TFPXMLBridge.RemoveNodeFromNodeRerence(pathNode: TDOMNode; query: string);
@@ -772,7 +778,7 @@ begin
       refNode.Appendchild(newNode);
       Result:= newNode;
       //SaveToFile(FXMLDocumentPath);
-      DoUpdateXMLDocument(newNode.NodeName, query);
+      DoXMLDocumentEdited(newNode.NodeName, query);
     end;
     newNodeInfo.Free;
   end;
@@ -820,7 +826,7 @@ begin
     begin
        refNode.TextContent:= value;
        //SaveToFile(FXMLDocumentPath);
-       DoUpdateXMLDocument(refNode.NodeName, value);
+       DoXMLDocumentEdited(refNode.NodeName, value);
     end;
   end;
 end;
@@ -968,11 +974,33 @@ end;
 procedure TFPXMLBridge.LoadFromFile(pathXMLFileName: string);
 begin
   FXMLDocumentPath:= pathXMLFileName;
+  FXMLDocument:= nil;
   ReadXMLFile(FXMLDocument, FXMLDocumentPath);
   FRootNode:= FXMLDocument.DocumentElement;
   FCurrentNode:= FRootNode;
   Active:= True;
 end;
+
+procedure TFPXMLBridge.LoadFromString(xmlStr: string); //revision 04 {06 - april 2013}
+var
+  S : TStringStream;
+begin
+  S:= TStringStream.Create(xmlStr);
+  try
+    S.Position:=0;
+    FXMLDocument:= nil;
+    ReadXMLFile(FXMLDocument,S);
+    FRootNode:= FXMLDocument.DocumentElement;
+    FCurrentNode:= FRootNode;
+    Active:= True;
+  finally
+    S.Free;
+  end;
+end;
+
+// Alternativamente:
+//ReadXMLFragment(AParentNode,S); // Lê somente um fragmento XML.
+
 
 procedure TFPXMLBridge.SaveToFile(pathXMLFileName: string);
 begin
@@ -998,6 +1026,7 @@ end;
 constructor TFPXMLBridge.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  Active:= False;
   WhenManyTextContentShowNodeName:= True;
   NamespaceSeparatorToken:= '.';
   NameValueSeparatorToken:= '#';
