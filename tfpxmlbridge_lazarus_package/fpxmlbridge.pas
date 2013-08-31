@@ -3,11 +3,13 @@ unit FPXMLBridge;
 {$mode objfpc}{$H+}
 
 {
-TFPXMLBridge - Version 0.1 - 01/2013;
-
 Author: Jose Marques Pessoa : jmpessoa__hotmail_com
 [1]Warning: at the moment this code is just a *proof-of-concept*
 
+TFPXMLBridge - Version 0.1 - 01/2013;
+
+::revision 06 minor fix and add overload for SetValue and InsertNode... 15-august-2013
+::revision 05 add GetXMLAsString... 12-august-2013
 ::revision 04 add LoadFromString... 06-april-2013
 ::revision 03 add property public XMLDocument.... 02-march-2013
 ::revision 02 - minor fix for GetDOMNodeReference... 24/february/2013
@@ -48,7 +50,7 @@ Author: Jose Marques Pessoa : jmpessoa__hotmail_com
 
 3.1.0
 
-    //take library as the root node:
+    //take "library" as the root node:
 
     <?xml version="1.0" encoding="utf-8"?>
     <library>
@@ -266,8 +268,12 @@ type
 
       procedure SetAttribute(query: string);  //revision 02 {23-febr-2013}
 
-      procedure SetValue(query: string);
-      function InsertNode(query: string): TDOMNode;
+      procedure SetValue(query: string);  overload;
+      procedure SetValue(path: string; aValue: string);  overload; //revision 06 overload SetValue... 15-august-2013
+
+      function InsertNode(query: string): TDOMNode;  overload;
+      function InsertNode(path: string; aValue: string): TDOMNode; overload; //revision 06 overload  InsertNode... 15-august-2013
+
       procedure RemoveNode(query: string);
 
       function GetValueFromNodeRerence(pathNode:TDOMNode; query: string): string;
@@ -283,6 +289,7 @@ type
 
       function GetValueFromChildByName(referenceNode: TDOMNode; AName: string): string;
       function GetValueFromChildByIndex(referenceNode: TDOMNode; indexchi: integer): string;
+      function GetXMLAsString: string; //revision 05 ... 12-august-2013
 
       property RootNode: TDOMNode Read GetRootNode;
       property CurrentNode: TDOMNode Read GetCurrentNode;
@@ -302,7 +309,7 @@ type
     property BridgeLateBindingToken: char read FBridgeLateBindingToken write FBridgeLateBindingToken;
     property WhenManyTextContentShowNodeName: boolean read FWhenManyTextContentShowNodeName write FWhenManyTextContentShowNodeName;
 
-    property XMLDocumentPath: string read GetXMLDocumentPath write SetXMLDocumentPath;   
+    property XMLDocumentPath: string read GetXMLDocumentPath write SetXMLDocumentPath;
     property OnBuildingBridge: TBuildingBridge Read FOnBuildingBridge write FOnBuildingBridge;
     property OnXMLDocumentEdited: TXMLDocumentEdited Read FOnXMLDocumentEdited write FOnXMLDocumentEdited; //revision 03 name changed.... 02-03-2013
     property OnSaveXMLDocument: TSaveXMLDocument read FOnSaveXMLDocument write FOnSaveXMLDocument;
@@ -314,15 +321,8 @@ type
   function ReplaceChar(query:string; oldchar, newchar: char):string;
   function CountChar(query: string; delimiter: char): Integer;
 
-procedure Register;
 
 implementation
-
-procedure Register;
-begin
-  {$I fpxmlbridge_icon.lrs}
-  RegisterComponents('Bridges',[TFPXMLBridge]);
-end;
 
 {TFPXMLBridge}
 
@@ -668,13 +668,18 @@ var
   refNode: TDOMNode;
   path: string;
 begin
-   if Pos(AssignmentToken, query) > 0 then
-   begin
-      path:= SplitStr(query, AssignmentToken);
-      SetLocation(path);
-      refNode:=GetNode(FLocation);
-      if refNode <> nil then SetTextContent(refNode, query);
-   end;
+  if Pos(AssignmentToken, query) > 0 then
+  begin
+    path:= SplitStr(query, AssignmentToken);
+    SetLocation(path);
+    refNode:=GetNode(FLocation);
+    if refNode <> nil then SetTextContent(refNode, query);
+  end;
+end;
+
+procedure TFPXMLBridge.SetValue(path: string; aValue: string);
+begin
+  SetValue(path+AssignmentToken+aValue);
 end;
 
 procedure TFPXMLBridge.RemoveNode(refNode: TDOMNode);
@@ -801,6 +806,17 @@ begin
   end;
 end;
 
+function TFPXMLBridge.InsertNode(path: string; aValue: string): TDOMNode;
+var
+  query: string;
+begin
+  if aValue <> '' then
+     query:= path+AssignmentToken+aValue
+  else
+     query:=path;
+  Result:=InsertNode(query);
+end;
+
 function TFPXMLBridge.InsertNodeFromNodeRerence(pathNode: TDOMNode; query: string): TDOMNode;
 var
    refNode:TDOMNode;
@@ -916,44 +932,44 @@ end;
 
 function TFPXMLBridge.GetChildNodeByNameAndAttribute(refNode:TDOMNode; nodeName, attrValue:string): TDOMNode;
 var
-    j, k, count, leng: integer;
-    tempNode: TDOMNode;
-    attrContent: string;
+  j, k, count, leng: integer;
+  tempNode: TDOMNode;
+  attrContent: string;
 begin
-    Result:= nil;
-    j:= 0;
-    count:=refNode.GetChildNodes.Count;
-    while j < count  do
+  Result:= nil;
+  j:= 0;
+  count:=refNode.GetChildNodes.Count;
+  while j < count  do
+  begin
+    tempNode:= refNode.GetChildNodes.Item[j];
+    if CompareText(tempNode.NodeName, nodeName) = 0 then
     begin
-        tempNode:= refNode.GetChildNodes.Item[j];
-        if CompareText(tempNode.NodeName, nodeName) = 0 then
-        begin
-            if attrValue <> '' then
-            begin
-               k:=0;
-               leng:= tempNode.Attributes.Length;
-               while k < leng do
-               begin
-                   if tempNode.Attributes.Item[k] <> nil then
-                   begin
-                       attrContent:= tempNode.Attributes.Item[k].TextContent;
-                       if CompareText(attrContent, attrValue) = 0  then
-                       begin
-                          Result:= tempNode;
-                          break; //exit while inner;
-                       end;
-                   end;
-                   inc(k);
-               end;
-            end
-            else
-            begin
+      if attrValue <> '' then
+      begin
+         k:=0;
+         leng:= tempNode.Attributes.Length;
+         while k < leng do
+         begin
+           if tempNode.Attributes.Item[k] <> nil then
+           begin
+             attrContent:= tempNode.Attributes.Item[k].TextContent;
+             if CompareText(attrContent, attrValue) = 0  then
+             begin
                 Result:= tempNode;
-                break;  //exit while
-            end;
-        end;
-        inc(j);
+                break; //exit while inner;
+             end;
+           end;
+           inc(k);
+         end;
+      end
+      else
+      begin
+        Result:= tempNode;
+        break;  //exit while
+      end;
     end;
+    inc(j);
+  end;
 end;
              //format: library.book(100).item(lazarus guide).author
 function TFPXMLBridge.GetNodeFromNodeRerence(pathNode:TDOMNode; query:string): TDOMNode;
@@ -963,10 +979,10 @@ begin
   Result:= nil;
   if pathNode <> nil then
   begin
-        refNode:=pathNode;
-        SetLocation(query);
-        nodePoint:= GetDOMNodeReference(refNode, FLocation);
-        result:= nodePoint;
+    refNode:=pathNode;
+    SetLocation(query);
+    nodePoint:= GetDOMNodeReference(refNode, FLocation);
+    result:= nodePoint;
   end;
   FCurrentNode:= Result;
 end;
@@ -998,14 +1014,49 @@ begin
   end;
 end;
 
-// Alternativamente:
-//ReadXMLFragment(AParentNode,S); // Lê somente um fragmento XML.
-
+//or:
+//ReadXMLFragment(AParentNode,S); //read only  a XML fragment....
 
 procedure TFPXMLBridge.SaveToFile(pathXMLFileName: string);
 begin
-   WriteXMLFile(FXMLDocument, pathXMLFileName);
-   DoSaveXMLDocument(pathXMLFileName);
+  WriteXMLFile(FXMLDocument, pathXMLFileName);
+  DoSaveXMLDocument(pathXMLFileName);
+end;
+
+(*
+//BUG!  Why ??
+function TFPXMLBridge.GetXMLAsString: string;
+var
+  S: TStream;
+  xmlString: string;
+begin
+  S:= TStream.Create;
+  WriteXMLFile(FXMLDocument, S); //<<--- Not Supported! Why ??
+  SetLength(xmlString, S.Size);
+  S.ReadBuffer(Pointer(xmlString)^, S.Size);
+  //S.Write(xmlString[1], Length(XmlString));
+  Result:= xmlString;
+  S.Free;
+end;
+*)
+
+function TFPXMLBridge.GetXMLAsString: string;  //revision 05 add GetXMLAsString... 12-august-2013
+var
+  S: TStringList;
+  pathTemp: string;
+begin
+  S:= TStringList.Create;
+
+  if FXMLDocumentPath <> '' then
+     pathTemp:= 'temp_'+ FXMLDocumentPath
+  else
+     pathTemp:= 'temp_dummy.xml';
+
+  SaveToFile(pathTemp);
+  S.LoadFromFile(pathTemp);
+  DeleteFile(pathTemp);
+  Result:= S.Text;
+  S.Free;
 end;
 
 constructor TFPXMLBridge.CreateXMLDocument(pathXMLFileName: string; rootName: string);
@@ -1013,7 +1064,6 @@ begin
   FXMLDocumentPath:= pathXMLFileName;
   // Create a document
   if FXMLDocument <> nil then FXMLDocument.Free;
-
   FXMLDocument := TXMLDocument.Create;
   // Create a root node
   FRootNode := FXMLDocument.CreateElement(rootName);
@@ -1073,8 +1123,8 @@ begin
       count:= Length(auxStr);
       if count >= 2 then  //change '>' to '>=' -BUG- revision 01 - 09-febr-2013
       begin
-         if auxStr[1] = delimiter then  auxStr[1] := newchar;
-         if auxStr[count] = delimiter then  auxStr[count] := newchar;
+         if auxStr[1] = delimiter then  auxStr[1]:= newchar;
+         if auxStr[count] = delimiter then  auxStr[count]:= newchar;
       end;
       Result:= Trim(auxStr);
   end;
@@ -1104,8 +1154,8 @@ begin
     end
     else
     begin
-       Result := theString;
-       theString := '';
+       Result:= theString;
+       theString:= '';
     end;
   end;
 end;

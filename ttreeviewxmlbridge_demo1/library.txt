@@ -1,0 +1,67 @@
+library
+	book
+		id=100
+		item
+			name=lazarus guide
+			author
+				Mattias L Gardner
+			coauthor
+				Felipe and others developers
+			publisher
+				Blaise Pascal Magazine
+		item
+			name=tfpxmlbridge help
+			author
+				jmpessoa
+			coauthor
+				all users
+			publisher
+				araguaia software
+		item
+			name=InstallOverdom wiki
+			author
+				Hydexon
+			coauthor
+				someone there
+			publisher
+				gitorious
+	book
+		id=200
+		item
+			name=complete lazarus 1 guide
+			author
+				M Gardner
+			coauthor
+				all others
+			publisher
+				Publisher Very New
+		item
+			name=tfpxmlbridge tutorial
+			author
+				jmpessoa_hotmaildotcom
+			coauthor
+				very users
+			publisher
+				magazine araguaia
+		item
+			name=InstallOverdom help
+			author
+				Hydexon
+			coauthor
+				others users
+			publisher
+				github
+				id=A
+				name=git hub
+			publisher
+				google
+				id=B
+				name=google code
+			publisher
+				media fire
+				id=C
+				name=media fire
+			publisher
+				open drive
+				id=D
+				name=opendrive

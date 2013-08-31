@@ -1,20 +1,36 @@
 {
-TFPXMLBridge - Version 0.1 - 01/2013;
-
 Author: Jose Marques Pessoa : jmpessoa__hotmail_com
 [1]Warning: at the moment this code is just a *proof-of-concept*
 
 
+(*.........................................................................*)
+
+  
+::New Add unit regxmlbridges.pas - 08/21023
+
+
+(*.........................................................................*)
+
+::TTreeViewXmlBridge - Version 0.1 - 08/2013
+
+::New Add AppTreeViewXmlBridgeDemo1
+::New Add Component TreeViewXmlBridge
+
+
+(*.........................................................................*)
+
+TFPXMLBridge - Version 0.1 - 01/2013;
+
+::revision 06 minor fix and add overload for SetValue and InsertNode... 15-august-2013
+::revision 05 add GetXMLAsString... 12-august-2013
 ::revision 04 add LoadFromString... 06-april-2013
 ::revision 03 add property public XMLDocument.... 02-march-2013
-
-
-::revision 02 - minor fix for GetDOMNodeReference - 24/February/2013 
+::revision 02 - minor fix for GetDOMNodeReference... 24/february/2013
 
 ::revision 02 - 23/February/2013
 
 	NEW Add suport for read/write Attributes
-	NEW function GetAttrList(query: string): string;	
+	NEW function GetAttrList(query: string): string;
 	NEW function GetAttrValueByName(query: string; attrName: string)
 	NEW procedure SetAttribute(query: string)
 	NEW Add    AppDemo3

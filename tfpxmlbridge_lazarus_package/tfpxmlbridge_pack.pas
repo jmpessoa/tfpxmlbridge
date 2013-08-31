@@ -7,13 +7,13 @@ unit tfpxmlbridge_pack;
 interface
 
 uses
-  FPXMLBridge, LazarusPackageIntf;
+  regxmlbridges, FPXMLBridge, TreeViewXMLBridge, LazarusPackageIntf;
 
 implementation
 
 procedure Register;
 begin
-  RegisterUnit('FPXMLBridge', @FPXMLBridge.Register);
+  RegisterUnit('regxmlbridges', @regxmlbridges.Register);
 end;
 
 initialization

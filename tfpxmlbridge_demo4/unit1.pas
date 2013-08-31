@@ -67,19 +67,19 @@ begin
        FPXMLBridge1.LoadFromString(strXML.Text);
 
        query:= 'rootnode.path.to.node(1)';
-       strResult:= FPXMLBridge1.GetAttrValueByName(query, 'attribute'); //beamId;
+       strResult:= FPXMLBridge1.GetAttrValueByName(query, 'attribute');
        ShowMessage(strResult);  //Show "LOL1!"
 
        query:= 'rootnode.path.to.node(2)';
-       strResult:= FPXMLBridge1.GetAttrValueByName(query, 'attribute'); //beamId;
+       strResult:= FPXMLBridge1.GetAttrValueByName(query, 'attribute');
        ShowMessage(strResult);  //Show "LOL2!"
 
        query:= 'rootnode.path.to.node(1)';
-       strResult:= FPXMLBridge1.GetAttrValueByName(query, 'id'); //beamId;
+       strResult:= FPXMLBridge1.GetAttrValueByName(query, 'id');
        ShowMessage(strResult); //Show "1!"
 
-       query:= 'rootnode.path.to.node(1)';
-       strResult:= FPXMLBridge1.GetAttrValueByName(query, 'id'); //beamId;
+       query:= 'rootnode.path.to.node(2)';
+       strResult:= FPXMLBridge1.GetAttrValueByName(query, 'id');
        ShowMessage(strResult); //Show "2!"
 
        strXML.Free;
