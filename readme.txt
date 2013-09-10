@@ -1,198 +1,112 @@
-{
+
+Lazarus Android Module Wizard 
+
+"A wizard for create JNI Android loadable module (.so) in Free Pascal using DataModules" 
+
+
 Author: Jose Marques Pessoa : jmpessoa__hotmail_com
+
+Acknowledgements: Eny and Phil for the Project wizard hints...
+                  http://forum.lazarus.freepascal.org/index.php/topic,20763.msg120823.html#msg120823
+
+                  Felipe for Android support
+
+                  TrueTom for Laz4Android Package (laz4android1.1-41139)
+                  https://skydrive.live.com/?cid=89ae6b50650182c6&id=89AE6B50650182C6%21149
+
+                  Lazarus forum community! 
+
+
+version 0.1 - August 2013
+
 [1]Warning: at the moment this code is just a *proof-of-concept*
+      
+
+(*....................................................................*)
 
 
-(*.........................................................................*)
+I. INSTALL LAZARUS PACKAGE (laz4android1.1-41139)
 
-  
-::New Add unit regxmlbridges.pas - 08/21023
+   1. From lazarus IDE
 
-
-(*.........................................................................*)
-
-::TTreeViewXmlBridge - Version 0.1 - 08/2013
-
-::New Add AppTreeViewXmlBridgeDemo1
-::New Add Component TreeViewXmlBridge
+      1.1 Package -> Open Package -> "lazandroidwizardpack.lpk"
+   
+      1.2 From Package Wizard
+          1.2.1 Compile
+          1.2.2 Use -> Install
 
 
-(*.........................................................................*)
-
-TFPXMLBridge - Version 0.1 - 01/2013;
-
-::revision 06 minor fix and add overload for SetValue and InsertNode... 15-august-2013
-::revision 05 add GetXMLAsString... 12-august-2013
-::revision 04 add LoadFromString... 06-april-2013
-::revision 03 add property public XMLDocument.... 02-march-2013
-::revision 02 - minor fix for GetDOMNodeReference... 24/february/2013
-
-::revision 02 - 23/February/2013
-
-	NEW Add suport for read/write Attributes
-	NEW function GetAttrList(query: string): string;
-	NEW function GetAttrValueByName(query: string; attrName: string)
-	NEW procedure SetAttribute(query: string)
-	NEW Add    AppDemo3
+(*....................................................................*)
 
 
-::revision 01 - 09/February/2013
+II. USE
 
-	NEW Sintaxe GetValue/SetValue by Node Index.
-	NEW procedure SetCurrentNode(query: string).
+1. From Eclipse IDE
 
-	NEW change AppDemo1    (remove option "new documment")
-	NEW Add    AppDemo2    (here is the option "new documment")
-	NEW Tips..
+  1.1. File -> New -> Android Application Project
 
-[2]Tokens "Language" :
-	Warning: change this tokens if necessary... or Application will crash!
-
-	NamespaceSeparatorToken:  .
-	BridgeLateBindingToken:  *    //default attribute=0 in late binding
-	NameValueSeparatorToken:  #   //... equal
-	AssignmentToken:  $           //... Assignment
-	ConcatenationToken:  |
-	AttributeNameValueStartToken:  (
-	AttributeNameValueEndToken:  )
-	AttributesSeparatorToken:   ;
-	IndexStartToken:  [
-	IndexEndToken:    ]
-
-[3] Sintaxe Example:
-
-3.1.0
-
-    //take library as the root node:
-
-    <?xml version="1.0" encoding="utf-8"?>
-    <library>
-    </library>
-
-    Now, after the commands:
-
-    InsertNode('library$book(id#100)')  //create node <book id="100">
-    InsertNode('library$book(id#200)')  //create node <book id="200">
-
-    the documment is:
-
-    <?xml version="1.0" encoding="utf-8"?>
-    <library>
-         <book id="100">
-         </book>
-         <book id="200">
-         </book>
-    </library>
-
-3.1.1    Insert item in library.book(100)           //library is root node
-
-	library.book(100)$item(id#1;name#lazarus guide)  //sintaxe
-	library.book(100)                 :namespace where some book attribute=100
-	$item                           :insert new node item
-	(id#1;name#lazarus guide)       :with attributes: name1#value1;name2#value2
-
-3.1  Insert item in library.book
-
-	library.book$item()out of print    //sintaxe
-	library.book          :namespace base - first book child
-	$item                 :insert new node item
-	()                    :empty open/closed parenthesis: no attribute at all!
-	out of print          :inner/content text!
-
-3.2  Set value in item(lazarus guide)
-
-	library.book(100).item(lazarus guide)$in stock    //sintaxe
-	library.book(100)          :namespace base
-	$in stock            :set item text inner/content/value =in stock
-
-:TIP 1 InsertNode: The path to the left of the token "$" must already exist!
-:TIP 2 InsertNode: If the right path of the token "$" not exists will be fully created!
-
-3.3  Set value in author
-
-	library.book(100).item(lazarus guide)author$Mattias Gartner        //sintaxe
-	library.book(100).item(lazarus guide)      :namespace base
-	(                         :open token - attribute
-	lazarus guide             :item selected by attribute lazarus guide
-	)                         :close token - attribute
-	author$Mattias Gartner    :set author text content/inner/value = Mattias Gartner
-
-:TIP 3 SetValue: Note that the symbol/token "$" is always placed at the end of the path
-                 where you need/want to Set the value!
-
-3.4  Generic Insert example: Insert nodes movie and item... then insert coauthor, publisher...
-
-	library$movie(id#121).item(id#11;name#2001 A Space Odyssey).author()Stanley Kubrick //sintaxe
-	library.movie(121).item(11)$coauthor()Arthur C Clarke   //sintaxe
-	library.movie(121).item(2001 A Space Odyssey)$publisher()Metro Goldwyn Mayer //sintaxe
-
-3.5  Generic Get example: Get value by some attribute
-
-	library.book(200).item(InstallOverdom help).publisher(B)
-	library.book(200)            :select book where some attribute=2
-	item(InstallOverdom help)  :select item where some attribute=InstallOverdom help
-	publisher(B)               :select publisher where some attribute=B
-
-3.6 Generic GetValue by nodeIndex:
-
-        //library is root node
-
-        InsertNode('library$stationery') //create node <stationery>
-
-        InsertNode('library.stationery$item()pencil') //create node <item>pencil</item>
-        InsertNode('library.stationery$item()pen') //create node <item>pen</item>
-        InsertNode('library.stationery$item()eraser') //create node <item>eraser</item>
-        InsertNode('library.stationery$item()notebook') //create node <item>notebook</item>
-
-        //this code read each item value...by index!
-
-        query:='library.stationery';
-        count:= FPXMLBridge1.CountElementNodeChildren(FPXMLBridge1.GetNode(query));
-        for i:=0 to count-1 do
-        begin;
-          query:= 'library.stationery.item['+intToStr(i)+']';
-          ShowMessage(FPXMLBridge1.GetValue(query));
-        end;
-
-3.7 Generic SetValue by node index:
-
-        //this code (re)write each item value...by index!
-
-        query:='library.stationery';
-        count:= FPXMLBridge1.CountElementNodeChildren(FPXMLBridge1.GetNode(query));
-        for i:=0 to count-1 do
-        begin;
-          query:= 'library.stationery.item['+intToStr(i)+']'+'$'+intToStr(i*100);
-          FPXMLBridge1.SetValue(query);
-          FPXMLBridge1.SaveToFile(FPXMLBridge1.XMLDocumentPath);
-        end;
-
-3.8 Select path to go "on the fly": Get value by attribute index late binding - handled by OnBuildingBridge
-
-	library.book(*).item(*).publisher(*)        :select attribute index = [0] to all {default}
-	library.book([0]).item([0]).publisher([1])  :select attribute index = [1] only to publisher...
-
-
-3.9 Get all Attributes node... and attribute value by attribute name...
-
-	query:= 'project.beams.beam(1).spans.span[1].loadp[0]';
-	if FPXMLBridge1.GetNode(query).HasAttributes then
-	begin
-	   ShowMessage(FPXMLBridge1.GetAttrList(query));
-	   ShowMessage(FPXMLBridge1.GetAttrValueByName(query, 'p'));
-	end;
+  1.2. From Package Explore -> src
     
-4.0 Set Attribute value....change attribute value or create new attribute
+       Right click your recent created package -> new -> class  
+    
+       Enter new class name... (ex. JNIHello) 
+   
+       Edit class code for wrapper native methods (ex...)
+   
+	public class JNIHello {
 
-	//this code (re)write attribute...
+	   public native String getString(int flag); 
+	   public native int getSum(int x, int y);
 
-        query:= 'project.beams.beam(1).spans.span[0]$(id#1)';  
-        FPXMLBridge1.SetAttribute(query);
+           static {
+		try {
+     		    System.loadLibrary("jnihello");  	     	   
+		} catch(UnsatisfiedLinkError ule) {
+		    ule.printStackTrace();
+		}
+           }
 
-        query:= 'project.beams.beam(1).spans.span[1].loadp[0]$(p#444)';
-        FPXMLBridge1.SetAttribute(query);
+	}  
 
 
-[4]Have fun!
+  1.3. warning: System.loadLibrary("...") must match class Name lower case...
+       ex. JNIHello -> "jnihello"
 
-}
+
+2. From lazarus IDE (laz4android1.1-41139) 
+
+   2.1 Project -> New Project
+   2.2 JNI Android Module
+
+2.1. From JNI Android Module set Paths
+   2.1.1 Path to Eclipse Workspace
+       ex. C:\adt32\eclipse\workspace
+           
+   2.1.2 Path to Ndk Plataforms
+       ex. C:\adt32\ndk7\platforms\android-8\arch-arm\usr\lib
+ 
+   2.1.3 Path to Ndk Toolchain  
+       ex. C:\adt32\ndk7\toolchains\arm-linux-androideabi-4.4.3\prebuilt\windows\lib\gcc\arm-linux-androideabi\4.4.3 
+
+2.2. From JNI Android Module select Java wrapper class for native methods.... (ex JNIHello)
+
+2.3. OK!  
+
+2.4. follow the code hint: "save all files to location....."
+
+2.5. From Lazarus IDE (laz4android1.1-41139)
+     Run -> Build 
+
+
+(*....................................................................*)
+
+
+III. RUN APPLICATION
+
+
+     1.  From Eclipse IDE
+
+     1.1 right click your recent created project -> Run as -> Android Application
+
+
+IV. Have Fun!
