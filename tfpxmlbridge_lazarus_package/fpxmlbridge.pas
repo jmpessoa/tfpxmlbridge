@@ -186,7 +186,7 @@ TFPXMLBridge - Version 0.1 - 01/2013;
 interface
 
 uses
-  Classes, SysUtils, {LResources,}DOM, XMLWrite, XMLRead, TypInfo{, Dialogs};
+  Classes, SysUtils, {LResources,}DOM, XMLWrite, XMLRead, TypInfo, Dialogs;
 
 type
 
@@ -418,6 +418,7 @@ var
    nodeName, indexStr, attrValue, forwardNodeName, attrList, newAttr: string;
 begin
    tokens:= TStringList.Create;
+   tokens.StrictDelimiter:= True;
    tokens.Delimiter:= NamespaceSeparatorToken; //'.'
    tokens.DelimitedText:=ReplaceChar(Trim(query),' ','+');
    refNode:= rootNode;
@@ -730,6 +731,7 @@ begin
     newNodeInfo:= TStringList.Create;
     if Pos({'.'} NamespaceSeparatorToken, localQuery) > 0 then
     begin
+        newNodeInfo.StrictDelimiter:= True;
         newNodeInfo.Delimiter:= NamespaceSeparatorToken {'.'};
         newNodeInfo.DelimitedText:= ReplaceChar(localQuery, ' ', '+');
         for i:= 0 to newNodeInfo.Count-2 do
@@ -740,13 +742,25 @@ begin
         localQuery:= newNodeInfo.Strings[newNodeInfo.Count-1];
     end;
     newNodeInfo.Clear;
+    newNodeInfo.StrictDelimiter:= True;
     newNodeInfo.Delimiter:=ConcatenationToken;
-    newNodeInfo.DelimitedText:= ReplaceChar(ReplaceChar(ReplaceChar(localQuery, AttributeNameValueStartToken, ConcatenationToken),
-                                AttributeNameValueEndToken, ConcatenationToken),' ','+');
+    newNodeInfo.DelimitedText:= StringReplace(ReplaceChar(
+                                             ReplaceChar(localQuery,
+                                                 AttributeNameValueStartToken,
+                                                 ConcatenationToken),
+                                            AttributeNameValueEndToken,
+                                            ConcatenationToken)
+                                 ,' ','+',[rfReplaceAll]);
                                 //format: nodename(attrName1#attrValue1;attrName2#attrValue2)textContent or
-                                //nodename()textContent or nodename
+                                //format: nodename(attrName1#attrValue1;attrName2#attrValue2) or
+                                //nodename()textContent or
+                                //nodename() or
+                                //nodename
     if newNodeInfo.Count > 0 then
+    begin
        newNode:= FXMLDocument.CreateElement(newNodeInfo.Strings[0]);
+    end;
+
     if newNode <> nil then
     begin
       if newNodeInfo.Count > 1 then
@@ -759,6 +773,7 @@ begin
              if Pos(AttributesSeparatorToken{';'}, attValue) > 0 then  //more than one attribute
              begin
                 attrList:= TStringList.Create;
+                attrList.StrictDelimiter:= True;
                 attrList.Delimiter:= AttributesSeparatorToken{';'};
                 attrList.DelimitedText:= attValue;
                 for i:= 0 to attrList.Count-1 do
@@ -766,20 +781,30 @@ begin
                    attValue:= attrList.Strings[i];
                    attName:=SplitStr(attValue,NameValueSeparatorToken);
                    if attName <> '' then
-                      TDOMElement(newNode).SetAttribute(attName, ReplaceChar(attValue, '+',' '));
+                   begin
+                       if attValue <> '' then
+                        TDOMElement(newNode).SetAttribute(attName, StringReplace(attValue, '+',' ', [rfReplaceAll]));
+                   end;
                 end;
                 attrList.Free;
              end
              else//has only one attribute
              begin
                  attName:=SplitStr(attValue,NameValueSeparatorToken);
-                 if attName <> '' then TDOMElement(newNode).SetAttribute(attName, ReplaceChar(attValue, '+',' '));
+                 if attName <> '' then
+                 begin
+                   if attValue <> '' then
+                      TDOMElement(newNode).SetAttribute(attName, StringReplace(attValue, '+',' ', [rfReplaceAll]));
+                 end;
              end;
            end;
         end;
       end;
-      if newNodeInfo.Count > 2 then //has inner/content text
-           newNode.Appendchild(FXMLDocument.CreateTextNode(ReplaceChar(newNodeInfo.Strings[2],'+',' ')));
+      if newNodeInfo.Count > 2 then // [may be] has inner/content text
+      begin
+         if newNodeInfo.Strings[2] <> '' then
+             newNode.Appendchild(FXMLDocument.CreateTextNode(StringReplace(newNodeInfo.Strings[2],'+',' ',[rfReplaceAll])));
+      end;
       refNode.Appendchild(newNode);
       Result:= newNode;
       //SaveToFile(FXMLDocumentPath);
@@ -989,8 +1014,13 @@ end;
 
 procedure TFPXMLBridge.LoadFromFile(pathXMLFileName: string);
 begin
+  if FXMLDocument <> nil then
+  begin
+    FXMLDocument.Free;
+    FXMLDocument:= nil;
+  end;
+
   FXMLDocumentPath:= pathXMLFileName;
-  FXMLDocument:= nil;
   ReadXMLFile(FXMLDocument, FXMLDocumentPath);
   FRootNode:= FXMLDocument.DocumentElement;
   FCurrentNode:= FRootNode;
@@ -1004,7 +1034,11 @@ begin
   S:= TStringStream.Create(xmlStr);
   try
     S.Position:=0;
-    FXMLDocument:= nil;
+    if FXMLDocument <> nil then
+    begin
+      FXMLDocument.Free;
+      FXMLDocument:= nil;
+    end;
     ReadXMLFile(FXMLDocument,S);
     FRootNode:= FXMLDocument.DocumentElement;
     FCurrentNode:= FRootNode;
@@ -1092,7 +1126,11 @@ end;
 
 destructor TFPXMLBridge.Destroy;
 begin
-  FXMLDocument.Free;
+  if FXMLDocument <> nil then
+  begin
+    FXMLDocument.Free;
+    FXMLDocument:= nil;
+  end;
   inherited Destroy;
 end;
 
