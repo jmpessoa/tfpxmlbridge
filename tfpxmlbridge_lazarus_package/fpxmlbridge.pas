@@ -186,7 +186,7 @@ TFPXMLBridge - Version 0.1 - 01/2013;
 interface
 
 uses
-  Classes, SysUtils, {LResources,}DOM, XMLWrite, XMLRead, TypInfo, Dialogs;
+  Classes, SysUtils, {LResources,}DOM, XMLWrite, XMLRead, TypInfo{, Dialogs};
 
 type
 
