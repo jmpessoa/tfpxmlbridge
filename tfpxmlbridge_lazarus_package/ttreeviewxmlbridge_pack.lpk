@@ -2,42 +2,34 @@
 <CONFIG>
   <Package Version="4">
     <PathDelim Value="\"/>
-    <Name Value="tfpxmlbridge_pack"/>
+    <Name Value="ttreeviewxmlbridge_pack"/>
     <CompilerOptions>
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
       </SearchPaths>
-      <Linking>
-        <Debugging>
-          <GenerateDebugInfo Value="False"/>
-        </Debugging>
-      </Linking>
     </CompilerOptions>
     <Files Count="3">
       <Item1>
-        <Filename Value="fpxmlbridge_icon.lrs"/>
-        <Type Value="LRS"/>
+        <Filename Value="regtreeviexmlbridges.pas"/>
+        <HasRegisterProc Value="True"/>
+        <UnitName Value="regtreeviexmlbridges"/>
       </Item1>
       <Item2>
-        <Filename Value="fpxmlbridge.pas"/>
-        <UnitName Value="FPXMLBridge"/>
+        <Filename Value="treeviewxmlbridge_icon.lrs"/>
+        <Type Value="LRS"/>
       </Item2>
       <Item3>
-        <Filename Value="regxmlbridges.pas"/>
-        <HasRegisterProc Value="True"/>
-        <UnitName Value="regxmlbridges"/>
+        <Filename Value="treeviewxmlbridge.pas"/>
+        <UnitName Value="TreeViewXMLBridge"/>
       </Item3>
     </Files>
     <Type Value="RunAndDesignTime"/>
-    <RequiredPkgs Count="2">
+    <RequiredPkgs Count="1">
       <Item1>
-        <PackageName Value="LCLBase"/>
+        <PackageName Value="tfpxmlbridge_pack"/>
       </Item1>
-      <Item2>
-        <PackageName Value="FCL"/>
-      </Item2>
     </RequiredPkgs>
     <UsageOptions>
       <UnitPath Value="$(PkgOutDir)"/>
@@ -45,8 +37,5 @@
     <PublishOptions>
       <Version Value="2"/>
     </PublishOptions>
-    <CustomOptions Items="ExternHelp" Version="2">
-      <_ExternHelp Items="Count"/>
-    </CustomOptions>
   </Package>
 </CONFIG>

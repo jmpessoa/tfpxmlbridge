@@ -7,7 +7,7 @@ unit tfpxmlbridge_pack;
 interface
 
 uses
-  regxmlbridges, FPXMLBridge, TreeViewXMLBridge, LazarusPackageIntf;
+  FPXMLBridge, regxmlbridges, LazarusPackageIntf;
 
 implementation
 

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils,
-  FPXMLBridge,TreeViewXMLBridge, LResources;
+  FPXMLBridge, LResources;
 
 Procedure Register;
 
@@ -16,8 +16,7 @@ Procedure Register;
 
 begin
   {$I fpxmlbridge_icon.lrs}
-  {$I treeviewxmlbridge_icon.lrs}
-  RegisterComponents('Bridges',[TFPXMLBridge, TTreeViewXMLBridge]);
+  RegisterComponents('Xml Bridges',[TFPXMLBridge]);
 end;
 
 initialization
